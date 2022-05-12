@@ -19,26 +19,27 @@ def map_coors(index):
 
 
 def erase_part(result, mode):
-    print("len x", len(result), "len y", len(result[0]))
+    n_sqrt = int(math.sqrt(N))
     for index in range(N):
-        x = int(index % math.sqrt(N))
-        y = int(index // math.sqrt(N))
-        print(x, y)
+        # print(index, N)
+        x = int(index % n_sqrt)
+        y = int(index // n_sqrt)
+        # print(x, y)
         if mode == 0:
-            if y <= N // 2:
-                result[x][y] = -1
+            if y <= n_sqrt // 2:
+                result[index] = -1
 
         if mode == 1:
-            if N // 2 <= y < N:
-                result[x][y] = -1
+            if n_sqrt // 2 <= y < n_sqrt:
+                result[index] = -1
 
         if mode == 2:
-            if x <= N // 2:
-                result[x][y] = -1
+            if x <= n_sqrt // 2:
+                result[index] = -1
 
         if mode == 3:
-            if N // 2 <= x < N:
-                result[x][y] = -1
+            if n_sqrt // 2 <= x < n_sqrt:
+                result[index] = -1
 
 
 def add_noise(tab):
@@ -59,11 +60,6 @@ path_list = [
 ]
 
 xi = images2xi(path_list, N)
-# for x in range(len(xi)):
-#     for y in range(len(xi[x])):
-#         print(xi[x][y], end=' ')
-#     print()
-
 hopfield_network = HopfieldNetwork(N=N)
 hopfield_network.train_pattern(xi)
 xi_flat = xi.flatten()
@@ -74,9 +70,9 @@ for i in range(4):
         erase_part(initial_lion, i)
     initial_lion = initial_lion.flatten()
     hopfield_network.set_initial_neurons_state(initial_lion)
-    while not hopfield_network.check_stability(xi_flat):
-        hopfield_network.update_neurons(1, mode="sync")
-    print(f"{np.sum(initial_lion == xi_flat) / N * 100:.2f}", "%", sep='')
+    while not hopfield_network.check_stability(hopfield_network.S):
+        hopfield_network.update_neurons(5, mode="sync")
+    print(f"{np.sum(hopfield_network.S == xi_flat) / N * 100:.2f}", "%", sep='')
 
-filepath = "./chada_wypada.xd"
+filepath = "./linux_tomek"
 np.savez(filepath, hopfield_network.w, xi)
